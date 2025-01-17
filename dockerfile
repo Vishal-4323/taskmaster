@@ -1,20 +1,18 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:17-jdk-slim
+# Use an official Maven image as a parent image
+FROM maven:3.8.6-openjdk-17
 
 # Set the working directory
 WORKDIR /app
 
-# Copy all project files into the container
-COPY . .
+# Copy pom.xml and source files into the container
+COPY pom.xml .
+COPY src ./src
 
-# Make the Gradle wrapper executable
-RUN chmod +x ./gradlew
+# Build the application
+RUN mvn clean package --file pom.xml
 
-# Build the application (this step may take some time)
-RUN ./gradlew build -x test --info
-
-# Copy the built JAR file to the working directory
-COPY build/libs/*.jar app.jar
+# Expose the port your application runs on (default Spring Boot port)
+EXPOSE 8080
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "target/*.jar"]
