@@ -8,10 +8,10 @@ WORKDIR /app
 COPY . /app
 
 # Build the application
-CMD "mvn clean install"
+RUN mvn clean install
 
 # Expose the application port
 EXPOSE 8080
 
 # Command to run the application
-CMD "mvn spring-boot:run"
+CMD ["mvn spring-boot:run"]
