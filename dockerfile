@@ -1,17 +1,26 @@
-# Use Maven with OpenJDK to build and run the application in one stage
-FROM maven:3.8.6-openjdk-17
+# Use an official OpenJDK runtime as a parent image
+FROM openjdk:17-jdk-slim
 
 # Set the working directory
 WORKDIR /app
 
-# Copy pom.xml and source code
-COPY pom.xml .
+# Copy the Gradle wrapper and build files
+COPY gradlew .
+COPY gradle ./gradle
+COPY build.gradle .
+COPY settings.gradle .
 
-# Package the application (skip tests for faster builds)
-RUN mvn clean package -DskipTests
+# Copy the source code
+COPY src ./src
 
-# Expose the application port
-EXPOSE 8080
+# Make the Gradle wrapper executable
+RUN chmod +x ./gradlew
 
-# Command to run the application
-ENTRYPOINT ["java", "-jar", "target/*.jar"]
+# Build the application
+RUN ./gradlew build -x test
+
+# Copy the built JAR file to a new location for execution
+COPY build/libs/*.jar app.jar
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
