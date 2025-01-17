@@ -1,28 +1,25 @@
+# Use an official OpenJDK runtime as a parent image
 FROM openjdk:17-jdk-slim
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Copy Gradle wrapper and configuration files
+# Copy the Gradle wrapper and build files
 COPY gradlew .
 COPY gradle ./gradle
 COPY build.gradle .
 COPY settings.gradle .
 
-# Copy source code
+# Copy the source code
 COPY src ./src
 
-# Make Gradle wrapper executable
+# Make the Gradle wrapper executable
 RUN chmod +x ./gradlew
 
-# Disable Gradle daemon and clear cache (optional)
-RUN echo "org.gradle.daemon=false" >> gradle.properties && \
-    rm -rf ~/.gradle/caches/
+# Build the application (this step may take some time)
+RUN ./gradlew build -x test
 
-# Build the application
-RUN ./gradlew build -x test --stacktrace
-
-# Copy built JAR file for execution
+# Copy the built JAR file to the working directory
 COPY build/libs/*.jar app.jar
 
 # Run the application
